@@ -13,11 +13,18 @@ import java.nio.charset.StandardCharsets;
 public class ExampleConnect {
 
     public static void main(String[] args) {
-        connect();
-        connectAndDisconnect();
-        connectAndPing();
-        subscribeAndUnsubscribe();
-        subscribeAndDisconnectAndReConnect();
+        //1. 测试连接
+//        connect();
+        //2. 测试连接及断开
+//        connectAndDisconnect();
+        //3. 测试连接及Ping
+//        connectAndPing();
+        //4. 测试订阅及解除订阅
+//        subscribeAndUnsubscribe();
+        //5. 订阅，断开，重连
+//        subscribeAndDisconnectAndReConnect();
+        //6. 发布
+        publish();
     }
 
     /**
@@ -119,7 +126,7 @@ public class ExampleConnect {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     try {
                         if(asyncActionToken.getTopics()[0].equals(MQTTConfigue.topic))
-                          sampleClient.unsubscribe(MQTTConfigue.topic);
+                            sampleClient.unsubscribe(MQTTConfigue.topic);
 
                         for (String topic : asyncActionToken.getTopics()){
                             if(topic.equals(MQTTConfigue.topic)){
@@ -209,6 +216,39 @@ public class ExampleConnect {
             } catch (MqttException e) {
                 HarveyDebug.d(e.getMessage());
             }
+
+        } catch(MqttException me) {
+            System.out.println("reason "+me.getReasonCode());
+            System.out.println("msg "+me.getMessage());
+            System.out.println("loc "+me.getLocalizedMessage());
+            System.out.println("cause "+me.getCause());
+            System.out.println("excep "+me);
+            me.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * 发布主题内容
+     *
+     */
+    private static void publish(){
+        MemoryPersistence persistence = new MemoryPersistence();
+
+        try {
+            MqttConnectionOptions connOpts = new MqttConnectionOptions();
+            connOpts.setCleanStart(true);
+            connOpts.setKeepAliveInterval(0);
+            connOpts.setSessionExpiryInterval(60L);
+            MqttAsyncClient sampleClient = new MqttAsyncClient(MQTTConfigue.broker, MQTTConfigue.clientId, persistence);
+            IMqttToken token = sampleClient.connect(connOpts);
+            token.waitForCompletion();
+
+            MqttMessage message = new MqttMessage();
+            message.setQos(2);
+            byte [] content = "ShangHai".getBytes(StandardCharsets.UTF_8);
+            message.setPayload(content);
+            sampleClient.publish(MQTTConfigue.topic, message);
 
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
