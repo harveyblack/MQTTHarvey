@@ -24,7 +24,9 @@ public class ExampleConnect {
         //5. 订阅，断开，重连
 //        subscribeAndDisconnectAndReConnect();
         //6. 发布
-        publish();
+//        publish();
+        //7. 订阅
+        subscribe();
     }
 
     /**
@@ -249,6 +251,35 @@ public class ExampleConnect {
             byte [] content = "ShangHai".getBytes(StandardCharsets.UTF_8);
             message.setPayload(content);
             sampleClient.publish(MQTTConfigue.topic, message);
+
+        } catch(MqttException me) {
+            System.out.println("reason "+me.getReasonCode());
+            System.out.println("msg "+me.getMessage());
+            System.out.println("loc "+me.getLocalizedMessage());
+            System.out.println("cause "+me.getCause());
+            System.out.println("excep "+me);
+            me.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * 订阅主题，验证接收QoS0,QoS1,QoS2级别的消息
+     *
+     */
+    private static void subscribe(){
+        MemoryPersistence persistence = new MemoryPersistence();
+
+        try {
+            MqttConnectionOptions connOpts = new MqttConnectionOptions();
+            connOpts.setCleanStart(false);
+            connOpts.setKeepAliveInterval(0);
+            connOpts.setSessionExpiryInterval(60L);
+            MqttAsyncClient sampleClient = new MqttAsyncClient(MQTTConfigue.broker, MQTTConfigue.clientId, persistence);
+            IMqttToken token = sampleClient.connect(connOpts);
+            token.waitForCompletion();
+
+            subscription(sampleClient);
 
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
