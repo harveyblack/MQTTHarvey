@@ -10,6 +10,11 @@ import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * 实践MQTT V5 协议
+ * 包含：CONNECT, DISCONNECT, PING, SUBSRIBE, UNSUBSCRIBE, PUBLISH等
+ *
+ */
 public class ExampleConnect {
 
     public static void main(String[] args) {
