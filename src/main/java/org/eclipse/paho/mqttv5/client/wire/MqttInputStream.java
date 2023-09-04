@@ -109,15 +109,14 @@ public class MqttInputStream extends InputStream {
 				}
 
 				//TODO HARVEY
-				final String[] PACKET_NAMES = { "reserved", "CONNECT", "CONNACK", "PUBLISH", "PUBACK", "PUBREC",
-						"PUBREL", "PUBCOMP", "SUBSCRIBE", "SUBACK", "UNSUBSCRIBE", "UNSUBACK", "PINGREQ", "PINGRESP", "DISCONNECT",
-						"AUTH" };
-				HarveyDebug.d();
-				HarveyDebug.d("Receive 包类型：" + PACKET_NAMES[type]);
-
-				if(PACKET_NAMES[type].equals("SUBACK")){
-					System.out.println();
+				if(HarveyDebug.DEBUG_MODE == 0){
+					final String[] PACKET_NAMES = { "reserved", "CONNECT", "CONNACK", "PUBLISH", "PUBACK", "PUBREC",
+							"PUBREL", "PUBCOMP", "SUBSCRIBE", "SUBACK", "UNSUBSCRIBE", "UNSUBACK", "PINGREQ", "PINGRESP", "DISCONNECT",
+							"AUTH" };
+					HarveyDebug.d();
+					HarveyDebug.d("Receive 包类型：" + PACKET_NAMES[type]);
 				}
+
 				byte reserved = (byte) (first & 0x0F);
 				MqttWireMessage.validateReservedBits(type, reserved);
 				
@@ -147,20 +146,37 @@ public class MqttInputStream extends InputStream {
 
 				//TODO HARVEY
 				byte [] hs = message.getHeader();
+				try {
+					HarveyDebug.parseHeader(hs);
+				} catch (Throwable t){
+					HarveyDebug.e(t.getMessage());
+				}
+
 				StringBuilder sb = new StringBuilder();
 				for(byte b : hs){
 					sb.append(Tools.toBinaryString(b&0xff)).append(" ");
 				}
-				HarveyDebug.d("Receive Message Header(二进制内容) : " + sb.toString());
-				HarveyDebug.d("Receive Message Header(字符串内容) : " + new String(hs, "UTF-8"));
+
+				if(sb.toString().length() != 0){
+					HarveyDebug.d("Receive Message Header(二进制内容) : " + sb.toString());
+				}
+
+				if(HarveyDebug.DEBUG_MODE == 0){
+				  HarveyDebug.d("Receive Message Header(字符串内容) : " + new String(hs, "UTF-8"));
+				}
 
 				byte [] ps = message.getPayload();
 				StringBuilder sb2 = new StringBuilder();
 				for(byte b : ps){
 					sb2.append(Tools.toBinaryString(b&0xff)).append(" ");
 				}
-				HarveyDebug.d("Receive Message payload(二进制内容) : " + sb2.toString());
-				HarveyDebug.d("Receive Message payload(字符串内容) : " + new String(ps, StandardCharsets.UTF_8));
+				if(sb2.toString().length() != 0){
+					HarveyDebug.d("Receive Message payload(二进制内容) : " + sb2.toString());
+				}
+
+				if(HarveyDebug.DEBUG_MODE == 0){
+				    HarveyDebug.d("Receive Message payload(字符串内容) : " + new String(ps, StandardCharsets.UTF_8));
+				}
 
 				// @TRACE 530= Received {0} 
 				log.fine(CLASS_NAME, methodName, "530",new Object[] {message});

@@ -87,6 +87,14 @@ public class MqttOutputStream extends OutputStream {
 			throw ExceptionHelper.createMqttException(MqttClientException.REASON_CODE_OUTGOING_PACKET_TOO_LARGE);
 		}
 
+		if(HarveyDebug.DEBUG_MODE == 1){
+			try {
+				HarveyDebug.parseHeader(bytes);
+			} catch (Throwable t){
+				HarveyDebug.e("MqttOutputStream 发生错误 " + t.getMessage());
+			}
+		}
+
 		//调试日志S HARVEY
 		final String[] PACKET_NAMES = { "reserved", "CONNECT", "CONNACK", "PUBLISH", "PUBACK", "PUBREC",
 				"PUBREL", "PUBCOMP", "SUBSCRIBE", "SUBACK", "UNSUBSCRIBE", "UNSUBACK", "PINGREQ", "PINGRESP", "DISCONNECT",
@@ -99,8 +107,13 @@ public class MqttOutputStream extends OutputStream {
 		for(byte b : bytes){
 			sb.append(Tools.toBinaryString(b&0xff)).append(" ");
 		}
-		HarveyDebug.d("Send Message Header(二进制内容) : " + sb.toString());
-		HarveyDebug.d("Send Message Header(字符串内容) : " + new String(bytes, "UTF-8"));
+		if(sb.toString().length() != 0){
+			HarveyDebug.d("Send Message Header(二进制内容) : " + sb.toString());
+		}
+
+		if(HarveyDebug.DEBUG_MODE == 0){
+			HarveyDebug.d("Send Message Header(字符串内容) : " + new String(bytes, "UTF-8"));
+		}
         //调试日志E
 
 		out.write(bytes,0,bytes.length);
@@ -118,8 +131,13 @@ public class MqttOutputStream extends OutputStream {
 		for(byte b : pl){
 			sb2.append(Tools.toBinaryString(b&0xff)).append(" ");
 		}
-		HarveyDebug.d("Send Message payload(二进制内容) : " + sb2.toString());
-		HarveyDebug.d("Send Message payload(字符串内容) : 内容长度=" + pl.length + "，内容=" + new String(pl, "UTF-8"));
+		if(sb.toString().length() != 0){
+			HarveyDebug.d("Send Message payload(二进制内容) : " + sb2.toString());
+		}
+
+		if(HarveyDebug.DEBUG_MODE == 0){
+		  HarveyDebug.d("Send Message payload(字符串内容) : 内容长度=" + pl.length + "，内容=" + new String(pl, "UTF-8"));
+		}
 
 		// @TRACE 529= sent {0}
     	log.fine(CLASS_NAME, methodName, "529", new Object[]{message});
