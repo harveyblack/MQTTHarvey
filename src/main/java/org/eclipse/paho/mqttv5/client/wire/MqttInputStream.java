@@ -146,10 +146,12 @@ public class MqttInputStream extends InputStream {
 
 				//TODO HARVEY
 				byte [] hs = message.getHeader();
-				try {
-					HarveyDebug.parseHeader(hs);
-				} catch (Throwable t){
-					HarveyDebug.e(t.getMessage());
+				if(HarveyDebug.DEBUG_MODE == 1){
+					try {
+						HarveyDebug.parseHeader(hs);
+					} catch (Throwable t){
+						HarveyDebug.e(t.getMessage());
+					}
 				}
 
 				StringBuilder sb = new StringBuilder();
