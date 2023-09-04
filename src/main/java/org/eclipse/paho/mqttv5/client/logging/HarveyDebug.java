@@ -226,9 +226,9 @@ public class HarveyDebug {
                     "WillQoS",
                     "WillFlag","CleanStart","Reserved");
             System.out.println();
-            System.out.format("%12d %12d %11d %8d %9d %10d %8d",
+            System.out.format("%12d %12d %11d %8s %9d %10d %8d",
                     (datas[currentByteIndex]&0x80)>>6, (datas[currentByteIndex]&0x40)>>5, (datas[currentByteIndex]&0x20)>>4,
-                    (datas[currentByteIndex]&0x18)>>3,
+                    ((datas[currentByteIndex]&0x10)>>4) + "" + ((datas[currentByteIndex]&0x8)>>3),
                     (datas[currentByteIndex]&0x4)>>2, (datas[currentByteIndex]&0x02)>>1, datas[currentByteIndex]&0x1);
 
             System.out.println();
