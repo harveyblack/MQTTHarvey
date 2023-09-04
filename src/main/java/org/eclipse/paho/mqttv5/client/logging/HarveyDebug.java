@@ -35,8 +35,8 @@ public class HarveyDebug {
         int currentByteIndex = 0;
 
         int packetType = (datas[currentByteIndex] >> 4) & 0xf;
-        int QoS = datas[currentByteIndex]&0x6;
-        int dup = datas[currentByteIndex]&0x8;
+        int QoS = (datas[currentByteIndex]&0x6) >> 1;
+        int dup = (datas[currentByteIndex]&0x8) >> 3;
 
         currentByteIndex++;
         int remainingLength = datas[currentByteIndex];
