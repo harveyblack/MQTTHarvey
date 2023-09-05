@@ -111,7 +111,7 @@ public class ExamplePublishDetail {
                 e.printStackTrace();
             }
 
-            sampleClient.disconnect();
+//            sampleClient.disconnect();
 
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
@@ -128,6 +128,7 @@ public class ExamplePublishDetail {
         MqttSubscription subscription = new MqttSubscription(MQTTConfigue.topic);
         MqttProperties mqttProperties = new MqttProperties();
         mqttProperties.setPayloadFormat(true);
+//        mqttProperties.setSubscriptionIdentifier(2);
         sampleClient.subscribe(new MqttSubscription[]{subscription}, null, new MqttActionListener() {
             @Override
             public void onSuccess(IMqttToken asyncActionToken) {

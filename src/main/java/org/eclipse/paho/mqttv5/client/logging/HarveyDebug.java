@@ -43,7 +43,7 @@ public class HarveyDebug {
         currentByteIndex++;
 //        int remainingLength = datas[currentByteIndex];
 
-        VariableByteInteger remainVariableByte = variableByte(datas,currentByteIndex);
+        VariableByteInteger remainVariableByte = decodevariableByte(datas,currentByteIndex);
         int remainingLength = remainVariableByte.getValue();
         currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() - 1;
 
@@ -64,16 +64,16 @@ public class HarveyDebug {
 
             String topicName = new String(topicNameB, StandardCharsets.UTF_8);
 
-            d("主题: " + topicName);
+            d("Topic Name: " + topicName);
 
             if(QoS > 0){
                 int packetIdentifier = (datas[currentByteIndex++] << 8)&0xff00 | datas[currentByteIndex];
                 currentByteIndex++;
-                d("包标识: " + packetIdentifier);
+                d("Packet Identifier: " + packetIdentifier);
             }
 
             //属性长度
-            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            VariableByteInteger propertyVariableByte = decodevariableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
             if(propertyLength == 0){
                 return;
@@ -88,7 +88,7 @@ public class HarveyDebug {
                     currentByteIndex++;
                     int payloadIdentifier = datas[currentByteIndex];
                     currentByteIndex++;
-                    d("负荷标识: " + payloadIdentifier);
+                    d("Payload Format Indicator: " + payloadIdentifier);
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -99,7 +99,7 @@ public class HarveyDebug {
                 if(propertyType == 2) { //Message Expiry Interval`
                     currentByteIndex++;
                     int messageExpiryInterval = (datas[currentByteIndex++] << 24)&0xff000000 | (datas[currentByteIndex++] << 16)&0xff0000 | (datas[currentByteIndex++] << 8)&0xff00 |  datas[currentByteIndex++]&0xff;
-                    d("消息过期时间: " +messageExpiryInterval);
+                    d("Message Expiry Interval: " +messageExpiryInterval);
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -110,7 +110,7 @@ public class HarveyDebug {
                 if(propertyType == 35) { //Topic Alias
                     currentByteIndex++;
                     int value = (datas[currentByteIndex++] << 8)&0xff00 |  datas[currentByteIndex++]&0xff;
-                    d("主题别名: " +  value);
+                    d("Topic Alias: " +  value);
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -128,7 +128,7 @@ public class HarveyDebug {
                         responseTopicB[k] = datas[currentByteIndex++];
                     }
 
-                    d("回应主题: " + new String(responseTopicB, StandardCharsets.UTF_8));
+                    d("Response Topic: " + new String(responseTopicB, StandardCharsets.UTF_8));
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -144,7 +144,7 @@ public class HarveyDebug {
                     for (int k = 0; k < value; k++){
                         correlationDataB[k] = datas[currentByteIndex++];
                     }
-                    d("对比数据: " + new String(correlationDataB, StandardCharsets.UTF_8));
+                    d("Correlation Data: " + new String(correlationDataB, StandardCharsets.UTF_8));
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -168,7 +168,7 @@ public class HarveyDebug {
                         valueB[k] = datas[currentByteIndex++];
                     }
 
-                    d("属性: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
+                    d("User Property: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -180,12 +180,12 @@ public class HarveyDebug {
                 if(propertyType == 11) { //Subscription Identifier
                     currentByteIndex++;
 
-                    VariableByteInteger payloadVariableByte = variableByte(datas,currentByteIndex);
+                    VariableByteInteger payloadVariableByte = decodevariableByte(datas,currentByteIndex);
 
-                    int value = payloadVariableByte.getValue();//datas[currentByteIndex];
+                    int value = payloadVariableByte.getValue();
                     currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() - 1;
 
-                    d("订阅标识: " + value);
+                    d("Subscription Identifier: " + value);
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -201,7 +201,7 @@ public class HarveyDebug {
                     for (int k = 0; k < value; k++){
                         contentTypeB[k] = datas[currentByteIndex++];
                     }
-                    d("内容类型: " + new String(contentTypeB, StandardCharsets.UTF_8));
+                    d("Content Type: " + new String(contentTypeB, StandardCharsets.UTF_8));
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -248,10 +248,10 @@ public class HarveyDebug {
             currentByteIndex++;
 
             int keepLiveLength = (datas[currentByteIndex++]<<8)&0xff00 | datas[currentByteIndex++];
-            d("心跳间隙: " + keepLiveLength + " 秒");
+            d("Keep Live: " + keepLiveLength + " 秒");
 
             //属性长度
-            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            VariableByteInteger propertyVariableByte = decodevariableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
             if(propertyLength == 0){
                 return;
@@ -269,7 +269,7 @@ public class HarveyDebug {
                 if(propertyType == 17){ //Session Expiry Interval
                     currentByteIndex++;
                     int sessionExpiry = (datas[currentByteIndex++] << 24)&0xff000000 | (datas[currentByteIndex++] << 16)&0xff0000 | (datas[currentByteIndex++] << 8)&0xff00 |  datas[currentByteIndex++]&0xff;
-                    d("session过期时间: " + sessionExpiry + "秒");
+                    d("Session Expiry Interval: " + sessionExpiry + "秒");
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -282,7 +282,7 @@ public class HarveyDebug {
 
                     int value = (datas[currentByteIndex++] << 8)&0xff00 | datas[currentByteIndex++]&0xff;
 
-                    d("最大接收 : " + value);
+                    d("Receive Maximum : " + value);
                     if(currentByteIndex >= datas.length){
                         break;
                     }
@@ -292,7 +292,7 @@ public class HarveyDebug {
                 if(propertyType == 39){ //Maximum Packet Size
                     currentByteIndex++;
                     int value = (datas[currentByteIndex++] << 24)&0xff000000 | (datas[currentByteIndex++] << 16)&0xff0000 | (datas[currentByteIndex++] << 8)&0xff00 |  datas[currentByteIndex++]&0xff;
-                    d("包最大尺寸: " + value);
+                    d("Maximum Packet Size: " + value);
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -305,7 +305,7 @@ public class HarveyDebug {
 
                     int value = (datas[currentByteIndex++] << 8)&0xff00 | datas[currentByteIndex++]&0xff;
 
-                    d("主题别名最大值 : " + value);
+                    d("Topic Alias Maximum : " + value);
                     if(currentByteIndex >= datas.length){
                         break;
                     }
@@ -352,7 +352,7 @@ public class HarveyDebug {
                         valueB[k] = datas[currentByteIndex++];
                     }
 
-                    d("属性: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
+                    d("User Property: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -456,7 +456,7 @@ public class HarveyDebug {
             d("连接结果 : " + reason);
 
             //属性长度
-            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            VariableByteInteger propertyVariableByte = decodevariableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
             if(propertyLength == 0){
                 return;
@@ -474,7 +474,7 @@ public class HarveyDebug {
                 if (propertyType == 17) { //Session Expiry Interval
                     currentByteIndex++;
                     int sessionExpiry = (datas[currentByteIndex++] << 24) & 0xff000000 | (datas[currentByteIndex++] << 16) & 0xff0000 | (datas[currentByteIndex++] << 8) & 0xff00 | datas[currentByteIndex++] & 0xff;
-                    d("session过期时间: " + sessionExpiry + "秒");
+                    d("Session Expiry Interval: " + sessionExpiry + "秒");
 
                     if (currentByteIndex >= datas.length) {
                         break;
@@ -487,7 +487,7 @@ public class HarveyDebug {
 
                     int value = (datas[currentByteIndex++] << 8)&0xff00 | datas[currentByteIndex++]&0xff;
 
-                    d("最大接收 : " + value);
+                    d("Receive Maximum: " + value);
                     if(currentByteIndex >= datas.length){
                         break;
                     }
@@ -499,7 +499,7 @@ public class HarveyDebug {
 
                     int value = datas[currentByteIndex++]&0xff;
 
-                    d("Maximum QoS : " + value);
+                    d("Maximum QoS: " + value);
                     if(currentByteIndex >= datas.length){
                         break;
                     }
@@ -521,7 +521,7 @@ public class HarveyDebug {
                 if(propertyType == 39){ //Maximum Packet Size
                     currentByteIndex++;
                     int value = (datas[currentByteIndex++] << 24)&0xff000000 | (datas[currentByteIndex++] << 16)&0xff0000 | (datas[currentByteIndex++] << 8)&0xff00 |  datas[currentByteIndex++]&0xff;
-                    d("包最大尺寸: " + value);
+                    d("Maximum Packet Size: " + value);
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -551,7 +551,7 @@ public class HarveyDebug {
 
                     int value = (datas[currentByteIndex++] << 8)&0xff00 | datas[currentByteIndex++]&0xff;
 
-                    d("主题别名最大值 : " + value);
+                    d("Topic Alias Maximum: " + value);
                     if(currentByteIndex >= datas.length){
                         break;
                     }
@@ -586,7 +586,7 @@ public class HarveyDebug {
                         valueB[k] = datas[currentByteIndex++];
                     }
 
-                    d("属性: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
+                    d("User Property: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -760,7 +760,7 @@ public class HarveyDebug {
             d("发布主题结果 : " + reason);
 
             //属性长度
-            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            VariableByteInteger propertyVariableByte = decodevariableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
             if(propertyLength == 0){
                 return;
@@ -803,7 +803,7 @@ public class HarveyDebug {
                         valueB[k] = datas[currentByteIndex++];
                     }
 
-                    d("属性: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
+                    d("User Property: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -821,7 +821,7 @@ public class HarveyDebug {
             d("Packet Identifier: " + identifier);
 
             //属性长度
-            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            VariableByteInteger propertyVariableByte = decodevariableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
             if(propertyLength == 0){
                 return;
@@ -838,11 +838,11 @@ public class HarveyDebug {
 
                 if(propertyType == 11) { //Subscription Identifier
                     currentByteIndex++;
-                    VariableByteInteger payloadVariableByte = variableByte(datas,currentByteIndex);
+                    VariableByteInteger payloadVariableByte = decodevariableByte(datas,currentByteIndex);
 
                     int value = payloadVariableByte.getValue();
                     currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() - 1;
-                    d("订阅标识: " + value);
+                    d("Subscription Identifier: " + value);
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -867,7 +867,7 @@ public class HarveyDebug {
                         valueB[k] = datas[currentByteIndex++];
                     }
 
-                    d("属性: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
+                    d("User Property: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -885,7 +885,7 @@ public class HarveyDebug {
             d("Packet Identifier: " + identifier);
 
             //属性长度
-            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            VariableByteInteger propertyVariableByte = decodevariableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
             if(propertyLength == 0){
                 return;
@@ -928,7 +928,7 @@ public class HarveyDebug {
                         valueB[k] = datas[currentByteIndex++];
                     }
 
-                    d("属性: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
+                    d("User Property: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -951,7 +951,7 @@ public class HarveyDebug {
             d("Packet Identifier: " + identifier);
 
             //属性长度
-            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            VariableByteInteger propertyVariableByte = decodevariableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
             if(propertyLength == 0){
                 return;
@@ -982,7 +982,7 @@ public class HarveyDebug {
                         valueB[k] = datas[currentByteIndex++];
                     }
 
-                    d("属性: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
+                    d("User Property: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -1064,7 +1064,7 @@ public class HarveyDebug {
             }
             d("断开结果 : " + reason);
             //属性长度
-            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            VariableByteInteger propertyVariableByte = decodevariableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
             if(propertyLength == 0){
                 return;
@@ -1082,7 +1082,7 @@ public class HarveyDebug {
                 if(propertyType == 17){ //Session Expiry Interval
                     currentByteIndex++;
                     int sessionExpiry = (datas[currentByteIndex++] << 24)&0xff000000 | (datas[currentByteIndex++] << 16)&0xff0000 | (datas[currentByteIndex++] << 8)&0xff00 |  datas[currentByteIndex++]&0xff;
-                    d("session过期时间: " + sessionExpiry + "秒");
+                    d("Session Expiry Interval: " + sessionExpiry + "秒");
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -1095,7 +1095,7 @@ public class HarveyDebug {
 
                     int value = (datas[currentByteIndex++] << 8)&0xff00 | datas[currentByteIndex++]&0xff;
 
-                    d("Reason String : " + value);
+                    d("Reason String: " + value);
                     if(currentByteIndex >= datas.length){
                         break;
                     }
@@ -1118,7 +1118,7 @@ public class HarveyDebug {
                         valueB[k] = datas[currentByteIndex++];
                     }
 
-                    d("属性: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
+                    d("User Property: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -1150,7 +1150,7 @@ public class HarveyDebug {
 
     }
 
-    public static VariableByteInteger variableByte(byte [] datas, int currentByteIndex){
+    public static VariableByteInteger decodevariableByte(byte [] datas, int currentByteIndex){
         byte digit;
         int value = 0;
         int multiplier = 1;
