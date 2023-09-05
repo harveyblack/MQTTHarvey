@@ -75,6 +75,9 @@ public class HarveyDebug {
             //属性长度
             VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
+            if(propertyLength == 0){
+                return;
+            }
             currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             int propertyType = datas[currentByteIndex];
@@ -250,6 +253,9 @@ public class HarveyDebug {
             //属性长度
             VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
+            if(propertyLength == 0){
+                return;
+            }
             currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
@@ -452,6 +458,9 @@ public class HarveyDebug {
             //属性长度
             VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
+            if(propertyLength == 0){
+                return;
+            }
             currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
@@ -753,6 +762,9 @@ public class HarveyDebug {
             //属性长度
             VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
+            if(propertyLength == 0){
+                return;
+            }
             currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
@@ -811,6 +823,9 @@ public class HarveyDebug {
             //属性长度
             VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
+            if(propertyLength == 0){
+                return;
+            }
             currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
@@ -872,6 +887,9 @@ public class HarveyDebug {
             //属性长度
             VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
+            if(propertyLength == 0){
+                return;
+            }
             currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
@@ -935,6 +953,9 @@ public class HarveyDebug {
             //属性长度
             VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
+            if(propertyLength == 0){
+                return;
+            }
             currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if (currentByteIndex >= datas.length) {
@@ -1045,6 +1066,9 @@ public class HarveyDebug {
             //属性长度
             VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
             int propertyLength = propertyVariableByte.getValue();
+            if(propertyLength == 0){
+                return;
+            }
             currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
