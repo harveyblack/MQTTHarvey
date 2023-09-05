@@ -40,12 +40,27 @@ public class ExamplePublishDetail {
             connOpts.setSessionExpiryInterval(60L);
             connOpts.setMaximumPacketSize(1000L);
             connOpts.setTopicAliasMaximum(30);
+            connOpts.setReceiveMaximum(1000);
+            connOpts.setAutomaticReconnect(true);
+            connOpts.setAutomaticReconnectDelay(5, 15);
+            connOpts.setMaxReconnectDelay(100);
+            connOpts.setRequestProblemInfo(true);
+            connOpts.setSendReasonMessages(true);
+
+            MqttMessage msg = new MqttMessage();
+            msg.setQos(2);
+            msg.setDuplicate(true);
+            msg.setRetained(true);
+            connOpts.setWill(MQTTConfigue.topic, msg);
             MqttAsyncClient sampleClient = new MqttAsyncClient(MQTTConfigue.broker, MQTTConfigue.clientId, persistence);
             IMqttToken token = sampleClient.connect(connOpts);
             token.waitForCompletion();
 
             MqttMessage message = new MqttMessage();
             message.setQos(2);
+            message.setDuplicate(true);
+            message.setRetained(true);
+            message.setId(9);
 
             MqttProperties mqttProperties = new MqttProperties();
             mqttProperties.setCorrelationData("HW".getBytes(StandardCharsets.UTF_8));
@@ -54,18 +69,16 @@ public class ExamplePublishDetail {
             mqttProperties.setContentType("TEST_PUBLISH");
             mqttProperties.setPayloadFormat(true);
             mqttProperties.setResponseTopic("quick");
-            mqttProperties.setReasonString("helloword");
             mqttProperties.setMessageExpiryInterval(60*60L);
-            mqttProperties.setTopicAliasMaximum(6000);
 
             List<UserProperty> userPropertyList = new ArrayList<>();
             userPropertyList.add(new UserProperty("first", "firstValue"));
             userPropertyList.add(new UserProperty("second", "secondValue"));
             mqttProperties.setUserProperties(userPropertyList);
-            mqttProperties.setMaximumQoS(10);
             message.setProperties(mqttProperties);
-            byte [] content = "ShangHai".getBytes(StandardCharsets.UTF_8);
-            message.setPayload(content);
+
+            message.setPayload("ShangHai".getBytes(StandardCharsets.UTF_8));
+
             sampleClient.publish(MQTTConfigue.topic, message);
 
             try {
