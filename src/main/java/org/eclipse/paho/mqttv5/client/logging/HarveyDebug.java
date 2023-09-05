@@ -1,5 +1,7 @@
 package org.eclipse.paho.mqttv5.client.logging;
 
+import org.eclipse.paho.mqttv5.common.packet.util.VariableByteInteger;
+
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,7 +41,12 @@ public class HarveyDebug {
         int dup = (datas[currentByteIndex]&0x8) >> 3;
 
         currentByteIndex++;
-        int remainingLength = datas[currentByteIndex];
+//        int remainingLength = datas[currentByteIndex];
+
+        VariableByteInteger remainVariableByte = variableByte(datas,currentByteIndex);
+        int remainingLength = remainVariableByte.getValue();
+        currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() - 1;
+
 
         if(packetType == 3){ //PUBLISH
             d("类型 ：PUBLISH，" + "QoS:" + QoS + ", DUP:"+dup);
@@ -49,11 +56,11 @@ public class HarveyDebug {
             int topicNameLength = (datas[currentByteIndex++] << 8)&0xff00 | datas[currentByteIndex++];
 
             byte [] topicNameB = new byte[topicNameLength];
+
             for(int k = 0; k < topicNameLength; k++){
-                topicNameB[k] = datas[4+k];
-                currentByteIndex = 4+k;
+                topicNameB[k] = datas[currentByteIndex+k];
             }
-            currentByteIndex++;
+            currentByteIndex = currentByteIndex + topicNameLength;
 
             String topicName = new String(topicNameB, StandardCharsets.UTF_8);
 
@@ -66,7 +73,9 @@ public class HarveyDebug {
             }
 
             //属性长度
-            int propertyLength = datas[currentByteIndex++];
+            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            int propertyLength = propertyVariableByte.getValue();
+            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             int propertyType = datas[currentByteIndex];
 
@@ -167,13 +176,13 @@ public class HarveyDebug {
 
                 if(propertyType == 11) { //Subscription Identifier
                     currentByteIndex++;
-                    int value = (datas[currentByteIndex++] << 8)&0xff00 |  datas[currentByteIndex++]&0xff;
-                    byte [] contentTypeB = new byte[value];
 
-                    for (int k = 0; k < value; k++){
-                        contentTypeB[k] = datas[currentByteIndex++];
-                    }
-                    d("订阅标识: " + new String(contentTypeB, StandardCharsets.UTF_8));
+                    VariableByteInteger payloadVariableByte = variableByte(datas,currentByteIndex);
+
+                    int value = payloadVariableByte.getValue();//datas[currentByteIndex];
+                    currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() - 1;
+
+                    d("订阅标识: " + value);
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -238,7 +247,10 @@ public class HarveyDebug {
             int keepLiveLength = (datas[currentByteIndex++]<<8)&0xff00 | datas[currentByteIndex++];
             d("心跳间隙: " + keepLiveLength + " 秒");
 
-            int propertyLength = datas[currentByteIndex++];
+            //属性长度
+            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            int propertyLength = propertyVariableByte.getValue();
+            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
@@ -437,7 +449,10 @@ public class HarveyDebug {
             }
             d("连接结果 : " + reason);
 
-            int propertyLength = datas[currentByteIndex++];
+            //属性长度
+            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            int propertyLength = propertyVariableByte.getValue();
+            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
@@ -735,7 +750,10 @@ public class HarveyDebug {
             }
             d("发布主题结果 : " + reason);
 
-            int propertyLength = datas[currentByteIndex++];
+            //属性长度
+            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            int propertyLength = propertyVariableByte.getValue();
+            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
@@ -790,7 +808,10 @@ public class HarveyDebug {
             int identifier = (datas[currentByteIndex++] << 8)&0xff00 | datas[currentByteIndex++]&0xff;
             d("Packet Identifier: " + identifier);
 
-            int propertyLength = datas[currentByteIndex++];
+            //属性长度
+            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            int propertyLength = propertyVariableByte.getValue();
+            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
@@ -802,13 +823,11 @@ public class HarveyDebug {
 
                 if(propertyType == 11) { //Subscription Identifier
                     currentByteIndex++;
-                    int value = (datas[currentByteIndex++] << 8)&0xff00 |  datas[currentByteIndex++]&0xff;
-                    byte [] contentTypeB = new byte[value];
+                    VariableByteInteger payloadVariableByte = variableByte(datas,currentByteIndex);
 
-                    for (int k = 0; k < value; k++){
-                        contentTypeB[k] = datas[currentByteIndex++];
-                    }
-                    d("订阅标识: " + new String(contentTypeB, StandardCharsets.UTF_8));
+                    int value = payloadVariableByte.getValue();
+                    currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() - 1;
+                    d("订阅标识: " + value);
 
                     if(currentByteIndex >= datas.length){
                         break;
@@ -850,7 +869,10 @@ public class HarveyDebug {
             int identifier = (datas[currentByteIndex++] << 8)&0xff00 | datas[currentByteIndex++]&0xff;
             d("Packet Identifier: " + identifier);
 
-            int propertyLength = datas[currentByteIndex++];
+            //属性长度
+            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            int propertyLength = propertyVariableByte.getValue();
+            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
@@ -910,7 +932,10 @@ public class HarveyDebug {
             int identifier = (datas[currentByteIndex++] << 8) & 0xff00 | datas[currentByteIndex++] & 0xff;
             d("Packet Identifier: " + identifier);
 
-            int propertyLength = datas[currentByteIndex++];
+            //属性长度
+            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            int propertyLength = propertyVariableByte.getValue();
+            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if (currentByteIndex >= datas.length) {
                 return;
@@ -1017,7 +1042,10 @@ public class HarveyDebug {
                 reason = "Wildcard Subscriptions not supported";
             }
             d("断开结果 : " + reason);
-            int propertyLength = datas[currentByteIndex++];
+            //属性长度
+            VariableByteInteger propertyVariableByte = variableByte(datas,currentByteIndex);
+            int propertyLength = propertyVariableByte.getValue();
+            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
@@ -1096,6 +1124,23 @@ public class HarveyDebug {
             }
         }
 
+    }
+
+    public static VariableByteInteger variableByte(byte [] datas, int currentByteIndex){
+        byte digit;
+        int value = 0;
+        int multiplier = 1;
+        int count = 0;
+
+        do {
+            digit = datas[currentByteIndex++];
+            count++;
+            value += ((digit & 0x7F) * multiplier);
+            multiplier *= 128;
+        } while ((digit & 0x80) != 0);
+
+
+        return new VariableByteInteger(value, count);
     }
 
 }

@@ -36,7 +36,7 @@ public class ExamplePublishDetail {
         try {
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             connOpts.setCleanStart(true);
-            connOpts.setKeepAliveInterval(30);
+            connOpts.setKeepAliveInterval(0);
             connOpts.setSessionExpiryInterval(60L);
             connOpts.setMaximumPacketSize(1000L);
             connOpts.setTopicAliasMaximum(30);
@@ -70,6 +70,7 @@ public class ExamplePublishDetail {
             mqttProperties.setPayloadFormat(true);
             mqttProperties.setResponseTopic("quick");
             mqttProperties.setMessageExpiryInterval(60*60L);
+            mqttProperties.setSubscriptionIdentifier(40);
 
             List<UserProperty> userPropertyList = new ArrayList<>();
             userPropertyList.add(new UserProperty("first", "firstValue"));
@@ -105,7 +106,7 @@ public class ExamplePublishDetail {
             subscription(sampleClient);
 
             try {
-                Thread.sleep(5000);
+                Thread.sleep(25000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

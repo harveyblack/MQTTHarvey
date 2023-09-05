@@ -91,7 +91,7 @@ public class MqttOutputStream extends OutputStream {
 			try {
 				HarveyDebug.parseHeader(bytes);
 			} catch (Throwable t){
-				HarveyDebug.e("MqttOutputStream 发生错误 " + t.getMessage());
+				HarveyDebug.e("MqttOutputStream:94 " + t.getMessage());
 			}
 		}
 

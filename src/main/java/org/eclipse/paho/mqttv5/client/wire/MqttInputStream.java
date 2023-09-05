@@ -150,7 +150,7 @@ public class MqttInputStream extends InputStream {
 					try {
 						HarveyDebug.parseHeader(hs);
 					} catch (Throwable t){
-						HarveyDebug.e(t.getMessage());
+						HarveyDebug.e("MqttInputStream:153 " + t.getMessage());
 					}
 				}
 
