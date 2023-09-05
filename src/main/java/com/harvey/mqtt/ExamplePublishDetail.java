@@ -111,7 +111,7 @@ public class ExamplePublishDetail {
                 e.printStackTrace();
             }
 
-//            sampleClient.disconnect();
+            sampleClient.disconnect();
 
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
