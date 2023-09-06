@@ -43,9 +43,11 @@ public class HarveyDebug {
         currentByteIndex++;
 //        int remainingLength = datas[currentByteIndex];
 
-        VariableByteInteger remainVariableByte = decodevariableByte(datas,currentByteIndex);
-        int remainingLength = remainVariableByte.getValue();
-        currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() - 1;
+        {
+            VariableByteInteger remainVariableByte = decodevariableByte(datas,currentByteIndex);
+            int remainingLength = remainVariableByte.getValue();
+            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() - 1;
+        }
 
 
         if(packetType == 3){ //PUBLISH
@@ -78,12 +80,15 @@ public class HarveyDebug {
             if(propertyLength == 0){
                 return;
             }
-            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
+            currentByteIndex = currentByteIndex + propertyVariableByte.getEncodedLength();
 
             int propertyType = datas[currentByteIndex];
 
             while (currentByteIndex < datas.length){
 
+                if(propertyType == 0){
+                    break;
+                }
                 if(propertyType == 1){ // Payload Format Indicator
                     currentByteIndex++;
                     int payloadIdentifier = datas[currentByteIndex];
@@ -183,7 +188,7 @@ public class HarveyDebug {
                     VariableByteInteger payloadVariableByte = decodevariableByte(datas,currentByteIndex);
 
                     int value = payloadVariableByte.getValue();
-                    currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
+                    currentByteIndex = currentByteIndex + payloadVariableByte.getEncodedLength();
 
                     d("Subscription Identifier: " + value);
 
@@ -256,7 +261,7 @@ public class HarveyDebug {
             if(propertyLength == 0){
                 return;
             }
-            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
+            currentByteIndex = currentByteIndex + propertyVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
@@ -461,7 +466,7 @@ public class HarveyDebug {
             if(propertyLength == 0){
                 return;
             }
-            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
+            currentByteIndex = currentByteIndex + propertyVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
@@ -765,7 +770,7 @@ public class HarveyDebug {
             if(propertyLength == 0){
                 return;
             }
-            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
+            currentByteIndex = currentByteIndex + propertyVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
@@ -826,7 +831,7 @@ public class HarveyDebug {
             if(propertyLength == 0){
                 return;
             }
-            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
+            currentByteIndex = currentByteIndex + propertyVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
@@ -841,7 +846,7 @@ public class HarveyDebug {
                     VariableByteInteger payloadVariableByte = decodevariableByte(datas,currentByteIndex);
 
                     int value = payloadVariableByte.getValue();
-                    currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() ;
+                    currentByteIndex = currentByteIndex + payloadVariableByte.getEncodedLength() ;
                     d("Subscription Identifier: " + value);
 
                     if(currentByteIndex >= datas.length){
@@ -890,7 +895,7 @@ public class HarveyDebug {
             if(propertyLength == 0){
                 return;
             }
-            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
+            currentByteIndex = currentByteIndex + propertyVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
@@ -956,7 +961,7 @@ public class HarveyDebug {
             if(propertyLength == 0){
                 return;
             }
-            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
+            currentByteIndex = currentByteIndex + propertyVariableByte.getEncodedLength();
 
             if (currentByteIndex >= datas.length) {
                 return;
@@ -1069,7 +1074,7 @@ public class HarveyDebug {
             if(propertyLength == 0){
                 return;
             }
-            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
+            currentByteIndex = currentByteIndex + propertyVariableByte.getEncodedLength();
 
             if(currentByteIndex >= datas.length){
                 return;
