@@ -183,7 +183,7 @@ public class HarveyDebug {
                     VariableByteInteger payloadVariableByte = decodevariableByte(datas,currentByteIndex);
 
                     int value = payloadVariableByte.getValue();
-                    currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() - 1;
+                    currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength();
 
                     d("Subscription Identifier: " + value);
 
@@ -841,7 +841,7 @@ public class HarveyDebug {
                     VariableByteInteger payloadVariableByte = decodevariableByte(datas,currentByteIndex);
 
                     int value = payloadVariableByte.getValue();
-                    currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() - 1;
+                    currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() ;
                     d("Subscription Identifier: " + value);
 
                     if(currentByteIndex >= datas.length){
