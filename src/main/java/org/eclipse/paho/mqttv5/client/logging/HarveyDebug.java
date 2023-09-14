@@ -326,6 +326,117 @@ public class HarveyDebug {
 
             }
 
+        } else if(packetType == 9 || packetType == 11){
+            StringBuilder sb = new StringBuilder();
+            for(int code : payload){
+                if(code == 0){
+                  if(sb.toString().length() > 0){
+                      sb.append(" , ");
+                  }
+                  sb.append("code:").append(code).append(":");
+
+                  sb.append("Granted QoS 0");
+                } else if(code == 0x1){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Granted QoS 1");
+                } else if(code == 0x2){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Granted QoS 2");
+                } else if(code == 0x80){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Unspecified error");
+                } else if(code == 0x83){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Implementation specific error");
+                } else if(code == 0x87){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Not authorized");
+                } else if(code == 0x8F){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Topic Filter invalid");
+                } else if(code == 0x91){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Packet Identifier in use");
+                } else if(code == 0x97){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Quota exceeded");
+                } else if(code == 0x9E){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Shared Subscriptions not supported");
+                } else if(code == 0xA1){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Subscription Identifiers not supported");
+                } else if(code == 0xA2){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Wildcard Subscriptions not supported");
+                } else if(code == 0x11){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("No subscription existed");
+                } else if(code == 0x87){
+                    if(sb.toString().length() > 0){
+                        sb.append(" , ");
+                    }
+                    sb.append("code:").append(code).append(":");
+                    sb.append("Not authorized");
+                }
+            }
+
+            d(sb.toString());
+        } else if(packetType == 10){
+            int payloadIndex = 0;
+
+            while (payloadIndex < payload.length) {
+
+                {
+                    int willTopicLength = (payload[payloadIndex++] << 8) & 0xff00 | payload[payloadIndex++];
+                    byte[] willTopicB = new byte[willTopicLength];
+                    for (int k = 0; k < willTopicLength; k++) {
+                        willTopicB[k] = payload[payloadIndex + k];
+                    }
+                    payloadIndex = payloadIndex + willTopicLength;
+
+                    String contentType = new String(willTopicB, StandardCharsets.UTF_8);
+                    d("Topic Filters: " + contentType);
+                }
+
+            }
+
         }
 
     }

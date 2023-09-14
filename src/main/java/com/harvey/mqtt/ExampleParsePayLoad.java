@@ -15,10 +15,13 @@ import java.util.List;
 
 
 /**
+ * MQTT V5.0规范 ： https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.pdf
+ *
  * 本节实践目标：解析payload数据
  *
- * 包含PAYLOAD的消息有三个：CONNECT， PUBLISH， SUBSCRIBE
- *
+ * 参见规范"Table 2-5 - MQTT Control Packets that contain a Payload"
+ * 必须包含PAYLOAD的消息有五个：CONNECT，SUBSCRIBE, SUBACK, UNSUBSCRIBE, UNSUBACK
+ * 可能包含PAYLOAD的消息有1个：PUBLISH
  *
  */
 public class ExampleParsePayLoad {
@@ -59,6 +62,14 @@ public class ExampleParsePayLoad {
 
             subscription(sampleClient);
 
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            sampleClient.unsubscribe(new String[]{"TEST_TOPIC", MQTTConfigue.topic});
+
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
             System.out.println("msg "+me.getMessage());
@@ -91,6 +102,7 @@ public class ExampleParsePayLoad {
 
             }
         }, mqttProperties);
+
     }
 
 }
