@@ -96,12 +96,6 @@ public class MqttOutputStream extends OutputStream {
 		}
 
 		//调试日志S HARVEY
-		final String[] PACKET_NAMES = { "reserved", "CONNECT", "CONNACK", "PUBLISH", "PUBACK", "PUBREC",
-				"PUBREL", "PUBCOMP", "SUBSCRIBE", "SUBACK", "UNSUBSCRIBE", "UNSUBACK", "PINGREQ", "PINGRESP", "DISCONNECT",
-				"AUTH" };
-		byte type = (byte) ((bytes[0] >>> 4) & 0x0F);
-		HarveyDebug.d();
-		HarveyDebug.d("Send 包类型：" + PACKET_NAMES[type]);
 
 		StringBuffer sb = new StringBuffer();
 		for(byte b : bytes){
@@ -138,6 +132,8 @@ public class MqttOutputStream extends OutputStream {
 		if(HarveyDebug.DEBUG_MODE == 0){
 		  HarveyDebug.d("Send Message payload(字符串内容) : 内容长度=" + pl.length + "，内容=" + new String(pl, "UTF-8"));
 		}
+
+		HarveyDebug.parsePayload(bytes, pl);
 
 		// @TRACE 529= sent {0}
     	log.fine(CLASS_NAME, methodName, "529", new Object[]{message});

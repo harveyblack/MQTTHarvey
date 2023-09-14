@@ -108,15 +108,6 @@ public class MqttInputStream extends InputStream {
 					throw ExceptionHelper.createMqttException(MqttClientException.REASON_CODE_INVALID_MESSAGE);
 				}
 
-				//TODO HARVEY
-				if(HarveyDebug.DEBUG_MODE == 0){
-					final String[] PACKET_NAMES = { "reserved", "CONNECT", "CONNACK", "PUBLISH", "PUBACK", "PUBREC",
-							"PUBREL", "PUBCOMP", "SUBSCRIBE", "SUBACK", "UNSUBSCRIBE", "UNSUBACK", "PINGREQ", "PINGRESP", "DISCONNECT",
-							"AUTH" };
-					HarveyDebug.d();
-					HarveyDebug.d("Receive 包类型：" + PACKET_NAMES[type]);
-				}
-
 				byte reserved = (byte) (first & 0x0F);
 				MqttWireMessage.validateReservedBits(type, reserved);
 				
@@ -179,6 +170,8 @@ public class MqttInputStream extends InputStream {
 				if(HarveyDebug.DEBUG_MODE == 0){
 				    HarveyDebug.d("Receive Message payload(字符串内容) : " + new String(ps, StandardCharsets.UTF_8));
 				}
+
+				HarveyDebug.parsePayload(hs, ps);
 
 				// @TRACE 530= Received {0} 
 				log.fine(CLASS_NAME, methodName, "530",new Object[] {message});

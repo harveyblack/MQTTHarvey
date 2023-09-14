@@ -26,6 +26,311 @@ public class HarveyDebug {
         System.err.println(date() + " " + info);
     }
 
+    public static void parsePayload(byte [] header, byte [] payload){
+        if(payload == null || payload.length == 0){
+            return;
+        }
+
+        int currentByteIndex = 0;
+
+        int packetType = (header[currentByteIndex] >> 4) & 0xf;
+
+        currentByteIndex++;
+
+        {
+            VariableByteInteger remainVariableByte = decodevariableByte(header, currentByteIndex);
+            int remainingLength = remainVariableByte.getValue();
+            currentByteIndex = currentByteIndex + remainVariableByte.getEncodedLength() - 1;
+        }
+
+        if(packetType == 1) { //CONNECT
+            //解析头部
+            currentByteIndex++;
+            int protocalNameLength = (header[currentByteIndex++] << 8)&0xff00 | header[currentByteIndex++];
+            byte [] protocalNameB = new byte[protocalNameLength];
+            for(int k = 0; k < protocalNameLength; k++){
+                protocalNameB[k] = header[4+k];
+                currentByteIndex = 4+k;
+            }
+
+            currentByteIndex++;
+
+            int protocalVersion = header[currentByteIndex];
+
+            String topicName = new String(protocalNameB, StandardCharsets.UTF_8);
+
+            currentByteIndex++;
+
+            int willRetail =  (header[currentByteIndex]&0x20)>>5;
+            int willQoS =    ((header[currentByteIndex]&0x10)>>4) + ((header[currentByteIndex]&0x8)>>3);
+            int willFlag = (header[currentByteIndex]&0x4)>>2;
+
+            //解析payload
+
+            //3.1.3.1 Client Identifier (ClientID)
+            int payloadIndex = 0;
+            int clientIdentifierLength = (payload[payloadIndex] << 8)&0xff00 | payload[payloadIndex+1];
+            payloadIndex = payloadIndex + 2;
+
+            byte [] clientIdentifierB = new byte[clientIdentifierLength];
+            for(int k = 0; k < clientIdentifierLength; k++){
+                clientIdentifierB[k] = payload[payloadIndex + k];
+            }
+
+            payloadIndex = payloadIndex + clientIdentifierLength;
+
+            String clientIdentifier = new String(clientIdentifierB, StandardCharsets.UTF_8);
+            d("Client Identifier: " + clientIdentifier);
+
+            //3.1.3.2 Will Properties
+            if(willFlag==1){
+                VariableByteInteger remainVariableByte = decodevariableByte(payload, payloadIndex);
+
+                int propertyLength = remainVariableByte.getValue();
+
+                payloadIndex = payloadIndex + remainVariableByte.getEncodedLength();
+
+                int propertyType = payload[payloadIndex];
+
+                int propertyIndex = propertyLength;
+
+                while (true){
+
+                    if(propertyIndex <= 0){
+                        break;
+                    }
+
+                    if(propertyType == 24){ //3.1.3.2.2 Will Delay Interval
+                        propertyIndex--;
+                        propertyIndex = propertyIndex - 4;
+
+                        payloadIndex++;
+                        int sessionExpiry = (payload[payloadIndex] << 24)&0xff000000 | (payload[payloadIndex+1] << 16)&0xff0000 | (payload[payloadIndex+2] << 8)&0xff00 |  payload[payloadIndex+3]&0xff;
+                        d("Will Delay Interval: " + sessionExpiry + "秒");
+
+                        payloadIndex = payloadIndex + 4;
+
+                        propertyType = payload[payloadIndex];
+
+                    }
+
+                    if(propertyType == 1){//3.1.3.2.3 Payload Format Indicator
+                        propertyIndex--;
+                        propertyIndex--;
+
+                        payloadIndex++;
+                        int value = payload[payloadIndex++]&0xff;
+
+                        d("Payload Format Indicator: " + value);
+
+                        propertyType = payload[payloadIndex];
+                    }
+
+                    if(propertyType == 2){//Message Expiry Interva
+                        propertyIndex--;
+                        propertyIndex = propertyIndex - 4;
+
+                        payloadIndex++;
+                        int sessionExpiry = (payload[payloadIndex++] << 24)&0xff000000 | (payload[payloadIndex++] << 16)&0xff0000 | (payload[payloadIndex++] << 8)&0xff00 |  payload[payloadIndex++]&0xff;
+                        d("Message Expiry Interva: " + sessionExpiry + "秒");
+
+                        if(payloadIndex >= payload.length){
+                            break;
+                        }
+                        propertyType = payload[payloadIndex];
+                    }
+
+                    if(propertyType == 3){//3.1.3.2.5 Content Type
+
+                        propertyIndex--;
+                        propertyIndex = propertyIndex - 2;
+
+                        payloadIndex++;
+                        int contentTypeLength = (payload[payloadIndex++] << 8)&0xff00 | payload[payloadIndex++];
+                        byte [] contentTypeB = new byte[contentTypeLength];
+                        for(int k = 0; k < contentTypeLength; k++){
+                            contentTypeB[k] = payload[payloadIndex+k];
+                            propertyIndex--;
+                        }
+
+                        payloadIndex = payloadIndex+contentTypeLength;
+
+                        String contentType = new String(contentTypeB, StandardCharsets.UTF_8);
+                        d("Content Type: " + contentType);
+
+                        if(payloadIndex >= payload.length){
+                            break;
+                        }
+                        propertyType = payload[payloadIndex];
+
+                    }
+
+                    if(propertyType == 8){//3.1.3.2.6 Response Topic
+                        propertyIndex--;
+                        propertyIndex = propertyIndex - 2;
+
+                        payloadIndex++;
+                        int contentTypeLength = (payload[payloadIndex++] << 8)&0xff00 | payload[payloadIndex++];
+                        byte [] contentTypeB = new byte[contentTypeLength];
+                        for(int k = 0; k < contentTypeLength; k++){
+                            contentTypeB[k] = payload[payloadIndex+k];
+                            propertyIndex--;
+                        }
+
+                        payloadIndex = payloadIndex + contentTypeLength;
+
+                        String contentType = new String(contentTypeB, StandardCharsets.UTF_8);
+                        d("Response Topic: " + contentType);
+
+                        propertyType = payload[payloadIndex];
+                    }
+
+                    if(propertyType == 9){//3.1.3.2.7 Correlation Data
+                        propertyIndex--;
+                        propertyIndex = propertyIndex - 2;
+
+                        payloadIndex++;
+                        int value = (payload[payloadIndex++] << 8)&0xff00 |  payload[payloadIndex++]&0xff;
+                        byte [] correlationDataB = new byte[value];
+
+                        for (int k = 0; k < value; k++){
+                            correlationDataB[k] = payload[payloadIndex++];
+                            propertyIndex--;
+                        }
+
+                        d("Correlation Data: " + new String(correlationDataB, StandardCharsets.UTF_8));
+
+                        if(payloadIndex >= payload.length){
+                            break;
+                        }
+                        propertyType = payload[payloadIndex];
+
+                    }
+
+                    if(propertyType == 38){//3.1.3.2.8 User Property
+                        propertyIndex--;
+                        propertyIndex = propertyIndex - 2;
+
+                        payloadIndex++;
+                        int key = (payload[payloadIndex++] << 8)&0xff00 |  payload[payloadIndex++]&0xff;
+                        byte [] keyB = new byte[key];
+
+                        for (int k = 0; k < key; k++){
+                            keyB[k] = payload[payloadIndex++];
+                            propertyIndex--;
+                        }
+
+                        propertyIndex = propertyIndex - 2;
+
+                        int value = (payload[payloadIndex++] << 8)&0xff00 |  payload[payloadIndex++]&0xff;
+                        byte [] valueB = new byte[value];
+
+                        for (int k = 0; k < value; k++){
+                            valueB[k] = payload[payloadIndex++];
+                            propertyIndex--;
+                        }
+
+                        d("User Property: " + new String(keyB, StandardCharsets.UTF_8) + "=" + new String(valueB, StandardCharsets.UTF_8));
+
+                        if(payloadIndex >= payload.length){
+                            break;
+                        }
+
+                        propertyType = payload[payloadIndex];
+                    }
+
+                }
+
+                //3.1.3.3 Will Topic
+                {
+                    int willTopicLength = (payload[payloadIndex++] << 8)&0xff00 | payload[payloadIndex++];
+                    byte [] willTopicB = new byte[willTopicLength];
+                    for(int k = 0; k < willTopicLength; k++){
+                        willTopicB[k] = payload[payloadIndex+k];
+                    }
+                    payloadIndex = payloadIndex + willTopicLength;
+
+                    String contentType = new String(willTopicB, StandardCharsets.UTF_8);
+                    d("Will Topic: " + contentType);
+
+                }
+
+                //3.1.3.4 Will Payload
+                {
+                    int value = (payload[payloadIndex++] << 8)&0xff00 |  payload[payloadIndex++]&0xff;
+                    byte [] willPayloadB = new byte[value];
+
+                    for (int k = 0; k < value; k++){
+                        willPayloadB[k] = payload[payloadIndex++];
+                    }
+
+                    d("Will Payload: " + new String(willPayloadB, StandardCharsets.UTF_8));
+                }
+
+            }
+
+            //3.1.3.5 User Name
+            {
+                int willTopicLength = (payload[payloadIndex++] << 8)&0xff00 | payload[payloadIndex++];
+                byte [] willTopicB = new byte[willTopicLength];
+                for(int k = 0; k < willTopicLength; k++){
+                    willTopicB[k] = payload[payloadIndex+k];
+                }
+                payloadIndex = payloadIndex + willTopicLength;
+
+                String contentType = new String(willTopicB, StandardCharsets.UTF_8);
+                d("User Name: " + contentType);
+            }
+
+            //3.1.3.6 Password
+            {
+                int value = (payload[payloadIndex++] << 8)&0xff00 |  payload[payloadIndex++]&0xff;
+                byte [] willPayloadB = new byte[value];
+
+                for (int k = 0; k < value; k++){
+                    willPayloadB[k] = payload[payloadIndex++];
+                }
+
+                d("Password: " + new String(willPayloadB, StandardCharsets.UTF_8));
+            }
+
+        } else if(packetType == 3){ //PUBLISH
+            d("发布内容：" + new String(payload, StandardCharsets.UTF_8));
+        } else if(packetType == 8){ //SUBSCRIBE
+            int payloadIndex = 0;
+
+            while (payloadIndex < payload.length) {
+
+                {
+                    int willTopicLength = (payload[payloadIndex++] << 8) & 0xff00 | payload[payloadIndex++];
+                    byte[] willTopicB = new byte[willTopicLength];
+                    for (int k = 0; k < willTopicLength; k++) {
+                        willTopicB[k] = payload[payloadIndex + k];
+                    }
+                    payloadIndex = payloadIndex + willTopicLength;
+
+                    String contentType = new String(willTopicB, StandardCharsets.UTF_8);
+                    d("Topic Filters: " + contentType);
+                }
+
+                //Reserved Retain Handling RAP NL QoS
+                String Reserved = ((payload[payloadIndex] & 0xc0) >> 6) + "";
+                String RetainHandling = ((payload[payloadIndex] & 0x30) >> 4) + "";
+                String RAP = ((payload[payloadIndex] & 0x8) >> 3) + "";
+                String NL = ((payload[payloadIndex] & 0x4) >> 2) + "";
+                String QoS = (payload[payloadIndex] & 0x3) + "";
+
+                d("Reserved:" + Reserved + " , " + "RetainHandling:" + RetainHandling + " , " + "RAP:" + RAP + " , " + "NL:" + NL + " , " + "QoS:" + QoS);
+
+                payloadIndex++;
+
+            }
+
+        }
+
+    }
+
+
     public static void parseHeader(byte [] datas){
 
         if(datas == null || datas.length == 0){
@@ -223,11 +528,10 @@ public class HarveyDebug {
             int protocalNameLength = (datas[currentByteIndex++] << 8)&0xff00 | datas[currentByteIndex++];
             byte [] protocalNameB = new byte[protocalNameLength];
             for(int k = 0; k < protocalNameLength; k++){
-                protocalNameB[k] = datas[4+k];
-                currentByteIndex = 4+k;
+                protocalNameB[k] = datas[currentByteIndex+k];
             }
 
-            currentByteIndex++;
+            currentByteIndex = currentByteIndex + protocalNameLength;
 
             int protocalVersion = datas[currentByteIndex];
 
@@ -401,6 +705,7 @@ public class HarveyDebug {
                 }
 
             }
+
 
         } else if(packetType == 2) {//CONNACK
             d("类型 ：CONNACK，" + "QoS:" + QoS + ", DUP:" + dup);
