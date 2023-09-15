@@ -326,7 +326,7 @@ public class HarveyDebug {
 
             }
 
-        } else if(packetType == 9 || packetType == 11){
+        } else if(packetType == 9 || packetType == 11){ // SUBACK/UNSUBACK
             StringBuilder sb = new StringBuilder();
             for(int code : payload){
                 if(code == 0){
@@ -418,7 +418,7 @@ public class HarveyDebug {
             }
 
             d(sb.toString());
-        } else if(packetType == 10){
+        } else if(packetType == 10){ //UNSUBSCRIBE
             int payloadIndex = 0;
 
             while (payloadIndex < payload.length) {
